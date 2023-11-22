@@ -6,7 +6,7 @@ const ProductSchema = new Schema<Product>({
     price: { type: Number, required: true }
 });
 
-const ProductModel = model<Product>('Product', ProductSchema);
+const ProductModel = model<Product>('Product', ProductSchema, 'GestaoDeProdutos');
 
 export default class ProductRepository {
     async save(product: Product): Promise<Product> {

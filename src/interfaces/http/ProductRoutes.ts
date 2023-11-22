@@ -11,7 +11,7 @@ export default function productRoutes(fastify: FastifyInstance, productService: 
         controller.createProduct(request, reply);
     });
 
-    fastify.put<{ Params: { productId: string }; Body: UpdateProductDTO }>('/products/:productId', (request, reply) => {
+    fastify.put<{ Params: { productId: string }; Body: UpdateProductDTO }>(`/products/:productId`, (request, reply) => {
         controller.updateProduct(request, reply);
     });
 }
