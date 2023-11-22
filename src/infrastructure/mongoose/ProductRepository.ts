@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose"; 
+import { model, Schema } from "mongoose";
 import Product from '../../domain/product/Product';
 
 const ProductSchema = new Schema<Product>({
@@ -18,10 +18,20 @@ export default class ProductRepository {
         return product;
     }
 
+    async update(productId: string, product: Product): Promise<void> {
+        const productDocument = await ProductModel.findById(productId);
+
+        if (productDocument) {
+            productDocument.set(product);
+            await productDocument.save();
+        }
+
+    }
+
     async findById(productId: string): Promise<Product | null> {
         const productDocument = await ProductModel.findById(productId);
 
-        if(!productDocument) {
+        if (!productDocument) {
             return null;
         }
 

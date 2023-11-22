@@ -20,7 +20,7 @@ export default class ProductService {
     async update(productId: string, updateProductDTO: UpdateProductDTO): Promise<Product> {
         const existingProduct = await this.productRepository.findById(productId);
 
-        if(!existingProduct) {
+        if (!existingProduct) {
             throw new Error('Product not found');
         }
 
@@ -32,7 +32,7 @@ export default class ProductService {
             existingProduct.price = updateProductDTO.price;
         }
 
-        await this.productRepository.save(existingProduct);
+        await this.productRepository.update(productId, existingProduct);
         return existingProduct;
     }
 }
