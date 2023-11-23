@@ -2,6 +2,7 @@ import Product from '../domain/product/Product';
 import ProductRepository from '../infrastructure/mongoose/ProductRepository';
 import CreateProductDTO from '../dtos/CreateProductDTO';
 import UpdateProductDTO from '../dtos/UpdateProductDTO';
+import AppError from '../shared/errors/AppError';
 
 export default class ProductService {
     private productRepository: ProductRepository;
@@ -21,7 +22,7 @@ export default class ProductService {
         const existingProduct = await this.productRepository.findById(productId);
 
         if (!existingProduct) {
-            throw new Error('Product not found');
+            throw new AppError(404, 'Product not found');
         }
 
         if(updateProductDTO.name){

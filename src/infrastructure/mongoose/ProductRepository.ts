@@ -14,16 +14,27 @@ export default class ProductRepository {
             name: product.name,
             price: product.price
         });
-        await productDocument.save();
-        return product;
+
+        try {
+            await productDocument.save();
+            return product;
+        } catch (error) {
+            console.error('Erro ao salvar produto: ', error);
+            throw error;
+        }
     }
 
     async update(productId: string, product: Product): Promise<void> {
-        const productDocument = await ProductModel.findById(productId);
+        try {
+            const productDocument = await ProductModel.findById(productId);
 
-        if (productDocument) {
-            productDocument.set(product);
-            await productDocument.save();
+            if (productDocument) {
+                productDocument.set(product);
+                await productDocument.save();
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar produto:', error);
+            throw error;
         }
 
     }
