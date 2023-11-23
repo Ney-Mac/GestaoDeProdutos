@@ -1,0 +1,59 @@
+import { model, Document } from "mongoose";
+import ProductRepository from "../../src/infrastructure/mongoose/ProductRepository";
+import Product from "../../src/domain/product/Product";
+
+jest.mock('mongoose');
+
+describe('ProductRepository', () => {
+    let productRepository: ProductRepository;
+    let productModelMock: jest.Mocked<Document & { findById: jest.Mock }>;
+
+    beforeEach(() => {
+        productModelMock = ({
+            save: jest.fn(),
+            findById: jest.fn()
+        } as unknown) as jest.Mocked<Document & { findById: jest.Mock }>;
+
+        (model as jest.Mock).mockReturnValue(productModelMock);
+
+        productRepository = new ProductRepository();
+    });
+
+    it('Deve salvar um produto', async () => {
+        const product = new Product('Produto teste', 300);
+        await productRepository.save(product);
+
+        expect(productModelMock.save).toHaveBeenCalledWith({ 
+            name: 'Produto teste', 
+            price: 300 
+        });
+    });
+
+    it('Deve actualizar um produto', async () => {
+        const productId = '123';
+        const product = new Product('Produto actualizado', 350);
+
+        productModelMock.findById.mockResolvedValue({
+            set: jest.fn(),
+            save: jest.fn()
+        });
+
+        await productRepository.update(productId, product);
+
+        expect(productModelMock.findById).toHaveBeenCalledWith(productId);
+    });
+
+    it('Deve encontrar um produto pelo ID', async () => {
+        const productId = '123';
+
+        productModelMock.findById.mockResolvedValue({
+            name: 'Produto teste',
+            price: 300
+        });
+
+        const result = await productRepository.findById(productId);
+
+        expect(productModelMock.findById).toHaveBeenCalledWith(productId);
+        expect(result).toEqual(new Product('Produto teste', 380));
+    });
+});

@@ -1,0 +1,48 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
+import ProductController from '../../src/interfaces/http/ProductController';
+import ProductService from '../../src/application/ProductService';
+import UpdateProductDTO from '../../src/dtos/UpdateProductDTO';
+import AppError from '../../src/shared/errors/AppError';
+
+jest.mock('../../src/application/ProductService');
+
+describe('ProductController', () => {
+    let productController: ProductController;
+    let productServiceMock: jest.Mocked<ProductService>;
+    let requestMock: FastifyRequest<{ Params: { productId: string }; Body: UpdateProductDTO }>;
+    let replyMock: FastifyReply;
+
+    beforeEach(() => {
+        productServiceMock = new ProductService(null) as jest.Mocked<ProductService>;
+        productController = new ProductController(productServiceMock);
+        requestMock = {} as FastifyRequest<{ Params: { productId: string }; Body: UpdateProductDTO }>;
+        replyMock = {} as FastifyReply;
+    });
+
+    it('Deve actualizar um produto com sucesso', async () => {
+        const productId = '123';
+        const updateProductDTO: UpdateProductDTO = { name: 'Produto actualizado', price: 350 };
+        productServiceMock.update.mockResolvedValueOnce(updateProductDTO);
+
+        (requestMock.params as any) = { productId };
+        (requestMock.body as any) = updateProductDTO;
+
+        await productController.updateProduct(requestMock, replyMock);
+
+        expect(replyMock.send).toHaveBeenCalledWith(updateProductDTO);
+    });
+
+    it('Deve lidar com erros durante a atualização do produto', async () => {
+        const productId = '123';
+        const errorMessage = 'Error updating product';
+        productServiceMock.update.mockRejectedValueOnce(new AppError(errorMessage, 400));
+
+        (requestMock.params as any) = { productId };
+        (requestMock.body as any) = { name: 'Produto atualizado', price: 350 };
+
+        await productController.updateProduct(requestMock, replyMock);
+
+        expect(replyMock.status).toHaveBeenCalledWith(400);
+        expect(replyMock.send).toHaveBeenCalledWith({ error: errorMessage });
+    });
+});
